@@ -5,7 +5,7 @@ Right Finder
 # Team: Cloud Bond
 
 Kunjan Malik  
-Praveen Nayak 
+Praveen Nayak  
 Shivam Shrivastav  
 Yadnyshree Savant  
 
