@@ -10,9 +10,9 @@ sap.ui.define(
     "use strict";
     var _sIdentity = "cmpe272.ss";
     var sLogOutUrl =
-      "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/logout?client_id=4khht0k2e1r2k5v3ei7hsp8smd&logout_uri=http://localhost:3008";
+      "https://rightfinder.auth.ap-south-1.amazoncognito.com/logout?client_id=4khht0k2e1r2k5v3ei7hsp8smd&logout_uri=https://application.rightfinder.click";
     var sUrl =
-      "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=http://localhost:3008";
+      "https://rightfinder.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://application.rightfinder.click";
     return Controller.extend("aws.LightningStorage.controller.Main", {
       onInit: function () {
         this._oView = this.getView();
@@ -52,6 +52,19 @@ sap.ui.define(
             url: "/api/employee_info",
             dataType: "json",
             success: function (data) {
+              if(data.result.is_mgr){
+                this._oView
+                .getModel("mainModel")
+                .setProperty("/title", "RightFinder   (MANAGER MODE)");
+              }else if(data.result.is_admin){
+                this._oView
+                .getModel("mainModel")
+                .setProperty("/title", "RightFinder   (ADMIN MODE)"); 
+              }else{
+                this._oView
+                .getModel("mainModel")
+                .setProperty("/title", "RightFinder   (EMPLOYEE MODE)"); 
+              }
               this._oView
                 .getModel("mainModel")
                 .setProperty("/employee", data.result);
@@ -91,11 +104,59 @@ sap.ui.define(
             }.bind(this),
           });
           this._getDirectReports();
+          this._getAdminReports();
         } else {
           // var sUrl =
           //   "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.mylightningstorage.com/";
           sap.m.URLHelper.redirect(sUrl, false);
         }
+      },
+      _getAdminReports: function(){
+        this._oView
+        .getModel("mainModel")
+        .setProperty("/adminReportsBusy", true);
+      $.ajax({
+        type: "GET",
+        headers: {
+          Authorization: `Bearer ${window.sessionStorage.accessToken}`,
+        },
+        contentType: "application/json",
+        url: "/api/admin_report",
+        dataType: "json",
+        success: function (data) {
+          this._oView
+            .getModel("mainModel")
+            .setProperty("/adminreports", data.result);
+          this._oView
+            .getModel("mainModel")
+            .setProperty("/adminReportsBusy", false);
+          var skills = data.result.skils ? data.result.skils : "",
+            aSkills = skills.split(", "),
+            aSkillSet = [];
+          aSkills.forEach((element) => {
+            aSkillSet.push({ key: element, text: element });
+          });
+          this._oView
+            .getModel("mainModel")
+            .setProperty("/adminreports/skillset", aSkillSet);
+          this._oView
+            .getModel("mainModel")
+            .setProperty("/adminreports/askills", aSkills);
+        }.bind(this),
+        error: function (error) {
+          this._oView
+            .getModel("mainModel")
+            .setProperty("/adminReportsBusy", false);
+          console.log("Error fetching direct reports");
+          // var sUrl =
+          //   "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.mylightningstorage.com/";
+          if (error.status === 401) {
+            MessageToast.show("Error occured. Sign in again");
+            window.sessionStorage.accessToken = "";
+            sap.m.URLHelper.redirect(sUrl, false);
+          }
+        }.bind(this),
+      });
       },
       _getDirectReports: function () {
         this._oView
@@ -241,6 +302,11 @@ sap.ui.define(
           this._fromDirectReports = true;
         } else {
           this._fromDirectReports = false;
+        }
+        if(this.getView().getModel("mainModel").getProperty("/employee/is_admin")){
+          this.getView().getModel("newEmployee").setProperty("/ADMIN", true);
+        }else{
+          oModel.setProperty("/ADMIN", false);
         }
         var skills = oLineItem.skils ? oLineItem.skils : "",
           aSkills = skills.split(", "),
@@ -536,7 +602,7 @@ sap.ui.define(
       handleLinkedInImport: function () {
         var oMainModel = this._oView.getModel("mainModel");
         var sUrl =
-          "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86pphz1g1cf3rm&redirect_uri=http://localhost:3008&scope=r_liteprofile%20r_emailaddress%20w_member_social";
+          "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86pphz1g1cf3rm&redirect_uri=https://application.rightfinder.click&scope=r_liteprofile%20r_emailaddress%20w_member_social";
         // window.open(sUrl, "window", "toolbar=no, menubar=no, resizable=yes");
         var child = window.open(
           sUrl,

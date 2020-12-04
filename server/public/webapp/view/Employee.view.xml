@@ -3,7 +3,7 @@
 	xmlns:layout="sap.ui.layout" xmlns:f="sap.ui.layout.form" height="100%">
 	<m:Page id="MainPage2" class="sapUiFioriObjectPage" showHeader="true" showFooter="false" floatingFooter="false">
 		<m:customHeader>
-			<fi:ShellBar class="shellBarCustom" secondTitle="{= ${newEmployee>/MGR} ? 'RightFinder        (MANAGER MODE: Acting OnBehalf of Employee)' : 'RightFinder      (EMPLOYEE INFO)'}" notificationsNumber="2"
+			<fi:ShellBar class="shellBarCustom" secondTitle="{= ${newEmployee>/MGR} ? 'RightFinder        (Acting OnBehalf of Employee)' : 'RightFinder      (EMPLOYEE INFO)'}" notificationsNumber="2"
 				showNotifications="false" homeIcon="img/favicon.png" homeIconPressed="onHomeIconPress" homeIconTooltip="Right Finder" showCopilot="false"
 				productSwitcherPressed="onMenuPress" showProductSwitcher="false" showNavButton="true" navButtonPressed="onNavPress">
 				<fi:profile>
@@ -30,7 +30,7 @@
 					<layout:VerticalLayout busy="{mainModel>/photoBusy}" width="auto">
 						<m:Image id="employeePicture2" src="{path: 'newEmployee>/employee/photo_url', formatter: '.formatURL'}" width="10rem" height="10rem"
 							decorative="true" densityAware="false" alt="No Image" class="photoRadius"/>
-						<m:Link text="Delete Photo" press="handleDeletePhoto" class="sapUiMediumMarginBegin" visible="{newEmployee>/MGR}"/>
+						<m:Link text="Delete Photo" press="handleDeletePhoto" class="sapUiMediumMarginBegin" visible="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 					</layout:VerticalLayout>
 					<layout:VerticalLayout width="auto">
 						<m:Title text="{newEmployee>/employee/name}" titleStyle="H2" level="H2"/>
@@ -61,7 +61,7 @@
 					<!-- </layout:VerticalLayout> -->
 					<layout:VerticalLayout width="15%" >
 						<m:HBox justifyContent="End" alignItems="End" alignContent="End">
-							<m:Button icon="sap-icon://upload" text="Upload Photo" type="Default" press="handleEditPhoto" tooltip="Change Profile Photo" class="sapUiTinyMarginEnd"/>
+							<m:Button icon="sap-icon://upload" text="Upload Photo" type="Default" press="handleEditPhoto" tooltip="Change Profile Photo" class="sapUiTinyMarginEnd" visible="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 							<!-- <m:Button icon="img/linkedin.jpg" busy="{mainModel>/linkedInBusy}" text="Import Photo from LinkedIn" type="Default" press="handleLinkedInImport" tooltip="Import Profile Picture from LinkedIn"/> -->
 						</m:HBox>
 					</layout:VerticalLayout>
@@ -80,25 +80,25 @@
 													<m:Title text="Details"/>
 													<m:ToolbarSpacer/>
                                                     <m:Text id="availability" text="Is Available?: "/>
-                                                    <m:Switch id="switch2" state="{= ${newEmployee>/employee/available} === 'Yes'}" customTextOn="Yes" customTextOff="No" enabled="{newEmployee>/MGR}">
+                                                    <m:Switch id="switch2" state="{= ${newEmployee>/employee/available} === 'Yes'}" customTextOn="Yes" customTextOff="No" enabled="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}">
                                                         <m:layoutData>
 					                                        <m:FlexItemData growFactor="1" />
 				                                        </m:layoutData>
 			                                        </m:Switch>
-													<m:Button text="Update" type="Emphasized" visible="{newEmployee>/MGR}" press="handleUpdatePress"/>
+													<m:Button text="Update" type="Emphasized" visible="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}" press="handleUpdatePress"/>
 												</m:OverflowToolbar>
 											</f:toolbar>
 											<f:content>
 												<m:Label text="Name"/>
-												<m:Input value="{newEmployee>/employee/name}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/name}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 												<m:Label text="Email"/>
 												<m:Text text="{newEmployee>/employee/emp_id}"/>
 												<m:Label text="Contact"/>
-												<m:Input value="{newEmployee>/employee/contact}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/contact}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 												<m:Label text="Date of Birth"/>
-												<m:DatePicker value="{newEmployee>/employee/dob}" editable="{newEmployee>/MGR}"/>
+												<m:DatePicker value="{newEmployee>/employee/dob}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 												<m:Label text="Gender"/>
-												<m:Select selectedKey="{newEmployee>/employee/gender}" enabled="{newEmployee>/MGR}">
+												<m:Select selectedKey="{newEmployee>/employee/gender}" enabled="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}">
 													<m:items>
 														<core:Item text="Male" key="Male"/>
 														<core:Item text="Female" key="Female"/>
@@ -106,8 +106,8 @@
 													</m:items>
 												</m:Select>
 												<m:Label text="Skills"/>
-                                                <m:Text text="{newEmployee>/employee/skils}" visible="{= !${newEmployee>/MGR}}"/>
-												<m:MultiComboBox id="multiSkills2" selectionFinish="handleSelectionFinish" width="350px" selectedKeys="{newEmployee>/employee/askills}" visible="{newEmployee>/MGR}">
+                                                <m:Text text="{newEmployee>/employee/skils}" visible="{= !${newEmployee>/MGR} &amp;&amp; !${newEmployee>/ADMIN}}"/>
+												<m:MultiComboBox id="multiSkills2" selectionFinish="handleSelectionFinish" width="350px" selectedKeys="{newEmployee>/employee/askills}" visible="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}">
 													<m:items>
 														<core:Item key="AngularJS" text="AngularJS"/>
 														<core:Item key="ReactJS" text="ReactJS"/>
@@ -135,13 +135,18 @@
 													</m:items>
 												</m:MultiComboBox>
 												<m:Label text="Location"/>
-												<m:Input value="{newEmployee>/employee/location}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/location}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 												<m:Label text="Position"/>
-												<m:Input value="{newEmployee>/employee/position}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/position}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
+												<m:Label text="Manager Email"/>
+												<m:ComboBox items="{newEmployee>/managers}" selectedKey="{newEmployee>/employee/mgr_id}"  visible="{newEmployee>/ADMIN}">
+													<core:Item key="{newEmployee>emp_id}" text="{newEmployee>emp_id}"/>
+												</m:ComboBox>
+												<m:Text visible="{= !!${newEmployee>mgr_id} &amp;&amp; !${newEmployee>/ADMIN}}" text="{newEmployee>mgr_id}"/>
 												<m:Label text="Department Name"/>
-												<m:Input value="{newEmployee>/employee/dept_name}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/dept_name}" editable="{newEmployee>/MGR}" visible="{= !${newEmployee>/ADMIN}}"/>
 												<m:Label text="Salary"/>
-												<m:Input value="{newEmployee>/employee/salary}" editable="{newEmployee>/MGR}"/>
+												<m:Input value="{newEmployee>/employee/salary}" editable="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}" visible="{= ${newEmployee>/MGR} || ${newEmployee>/ADMIN}}"/>
 											</f:content>
 										</f:SimpleForm>
 									</layout:VerticalLayout>

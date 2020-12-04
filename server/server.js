@@ -40,12 +40,17 @@ router.get("/employee_info", authMiddleware.Validate, api_route.employee_info);
 //api route for update employee info
 router.post("/employee_update", authMiddleware.Validate, api_route.employee_update);
 
+//api route for mgr emails
+router.get("/get_mgr", authMiddleware.Validate, api_route.get_mgr);
+
 //api route for update employee info
 router.post("/manager_update", authMiddleware.Validate, api_route.manager_update);
 
-//api route for read fiels
-// authMiddleware.Validate
+// girect report
 router.get("/direct_report", authMiddleware.Validate, api_route.direct_report);
+
+// admin report
+router.get("/admin_report", authMiddleware.Validate, api_route.admin_report);
 
 //api route for update file
 router.get("/colleagues", authMiddleware.Validate, api_route.colleagues);

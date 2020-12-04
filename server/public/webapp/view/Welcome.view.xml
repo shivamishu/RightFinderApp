@@ -6,7 +6,7 @@
 				<Page id="welcomePage" title="Right Finder" showHeader="false">
 					<content>
 						<VBox alignItems="Center">
-							<GenericTile frameType="TwoByOne" press="handleCognito" class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Welcome to Right Finder" subheader="A Corporate Lookup">
+							<GenericTile frameType="TwoByOne" press="handleCognito" class="sapUiTinyMarginBegin sapUiTinyMarginTop tileLayout" header="Welcome to Right Finder" subheader="An Employee Lookup">
 								<TileContent footer="Sign In">
 									<ImageContent src="img/favicon.png"/>
 								</TileContent>

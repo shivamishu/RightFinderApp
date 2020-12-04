@@ -6,7 +6,7 @@
 		contentWidth="25rem"
 		contentHeight="auto"
 		placement="Bottom">
-            <List id="list" >
+            <List  >
 					<StandardListItem
 					title="Sign Out"
 					type="Active"

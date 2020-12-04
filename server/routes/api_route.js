@@ -72,6 +72,11 @@ function performDatabaseOperations(req, res, sql_query, modeText, url) {
           });
           break;
         case "directreports":
+        case "adminreports":
+        case "getmgr":
+          if(modeText === "getmgr"){
+            result.unshift({emp_id: ""});
+          }
           res.send({
             status: 200,
             result: result,
@@ -207,7 +212,13 @@ exports.update_photo = async function (req, res) {
     dbOperations.updateFile(req, res, user_input);
   });
 };
-
+//get managers
+exports.get_mgr = async function (req, res) {
+  var oUserDetails = getUserDetails(res),
+    user_id = oUserDetails.user_id;
+  const read_query = `SELECT DISTINCT emp_id FROM sys.employee WHERE is_mgr = 1;`;
+  performDatabaseOperations(req, res, read_query, "getmgr");
+};
 // read the info for the current user
 exports.employee_info = async function (req, res) {
   var oUserDetails = getUserDetails(res),
@@ -218,7 +229,13 @@ exports.employee_info = async function (req, res) {
   //   message: "Success",
   // });
 };
-
+//admin report
+exports.admin_report = async function (req, res) {
+  var oUserDetails = getUserDetails(res),
+    user_id = oUserDetails.user_id;
+  let read_query = `SELECT * FROM sys.employee WHERE ( mgr_id IS NULL OR mgr_id = '' ) AND (is_admin IS NULL OR is_admin = 0) AND ( is_mgr IS NULL OR is_mgr = 0 )`;
+  performDatabaseOperations(req, res, read_query, "adminreports");
+};
 // update the exisitng file for the current user
 exports.direct_report = async function (req, res) {
   var oUserDetails = getUserDetails(res),
@@ -251,9 +268,16 @@ exports.employee_update = async function (req, res) {
 exports.manager_update = async function (req, res) {
   var oUserDetails = getUserDetails(res),
     user_id = oUserDetails.user_id;
+  let update_query;
   const available_since =
-    req.body.available === "Yes" ? new Date().toDateString() : "";
-  const update_query = `UPDATE sys.employee SET name = '${req.body.name}', dob = '${req.body.dob}', gender = '${req.body.gender}', location = '${req.body.location}', contact = '${req.body.contact}', skils = '${req.body.skils}', salary = '${req.body.salary}', position = '${req.body.position}', dept_name = '${req.body.dept_name}', available = '${req.body.available}', available_since = '${available_since}' WHERE emp_id = '${req.body.emp_id}' AND mgr_id = '${user_id}'`;
+    req.body.available === "Yes" ? new Date().toDateString() : ""; 
+  if(req.body.is_admin || req.body.is_mgr){
+    user_id = req.body.user_id;
+     update_query = `UPDATE sys.employee SET name = '${req.body.name}', dob = '${req.body.dob}', gender = '${req.body.gender}', location = '${req.body.location}', contact = '${req.body.contact}', skils = '${req.body.skils}', salary = '${req.body.salary}', position = '${req.body.position}', dept_name = '${req.body.dept_name}', available = '${req.body.available}', available_since = '${available_since}', mgr_id = '${req.body.mgr_id}' WHERE emp_id = '${req.body.emp_id}'`;  
+  }else{
+     update_query = `UPDATE sys.employee SET name = '${req.body.name}', dob = '${req.body.dob}', gender = '${req.body.gender}', location = '${req.body.location}', contact = '${req.body.contact}', skils = '${req.body.skils}', salary = '${req.body.salary}', position = '${req.body.position}', dept_name = '${req.body.dept_name}', available = '${req.body.available}', available_since = '${available_since}' WHERE emp_id = '${req.body.emp_id}' AND mgr_id = '${user_id}'`;
+  }
+  
   performDatabaseOperations(req, res, update_query, "updateemp");
 };
 //delete photo
@@ -291,7 +315,7 @@ exports.import_linkedin = async function (req, res) {
   var linkedin_token = req.body.linkedin_token;
   var options = {
     method: "POST",
-    url: `https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code=${linkedin_token}&redirect_uri=http://localhost:3008&client_id=86pphz1g1cf3rm&client_secret=xCYIajdQi8rOhDqz`,
+    url: `https://www.linkedin.com/oauth/v2/accessToken?grant_type=authorization_code&code=${linkedin_token}&redirect_uri=https://application.rightfinder.click&client_id=86pphz1g1cf3rm&client_secret=xCYIajdQi8rOhDqz`,
     headers: {},
   };
   request(options, function (error, response) {
