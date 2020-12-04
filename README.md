@@ -18,10 +18,3 @@ node server.js
 
 Server will be up on port localhost 3008  
 http://localhost:3008  
-
-# Team: Cloud Bond
-
-Kunjan Malik  
-Praveen Nayak  
-Shivam Shrivastav  
-Yadnyshree Savant 
