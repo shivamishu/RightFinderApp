@@ -27,7 +27,7 @@ sap.ui.define(
           photoError: false,
           photoMsg: "Photo uploaded successfully",
           totalEmployees: "",
-          mimeType: ["image/png", "image/jpeg"]
+          mimeType: ["image/png", "image/jpeg"],
         });
         this._oEventBus = this.getOwnerComponent().getEventBus();
         this._oEventBus.subscribe(
@@ -52,18 +52,18 @@ sap.ui.define(
             url: "/api/employee_info",
             dataType: "json",
             success: function (data) {
-              if(data.result.is_mgr){
+              if (data.result.is_mgr) {
                 this._oView
-                .getModel("mainModel")
-                .setProperty("/title", "RightFinder   (MANAGER MODE)");
-              }else if(data.result.is_admin){
+                  .getModel("mainModel")
+                  .setProperty("/title", "RightFinder   (MANAGER MODE)");
+              } else if (data.result.is_admin) {
                 this._oView
-                .getModel("mainModel")
-                .setProperty("/title", "RightFinder   (ADMIN MODE)"); 
-              }else{
+                  .getModel("mainModel")
+                  .setProperty("/title", "RightFinder   (ADMIN MODE)");
+              } else {
                 this._oView
-                .getModel("mainModel")
-                .setProperty("/title", "RightFinder   (EMPLOYEE MODE)"); 
+                  .getModel("mainModel")
+                  .setProperty("/title", "RightFinder   (EMPLOYEE MODE)");
               }
               this._oView
                 .getModel("mainModel")
@@ -74,6 +74,7 @@ sap.ui.define(
               this._oView
                 .getModel("mainModel")
                 .setProperty("/ADMIN", data.result.is_admin ? true : false);
+              this._getAdminReports();
               this._oView
                 .getModel("newEmployee")
                 .setProperty("/ADMIN", data.result.is_admin ? true : false);
@@ -104,59 +105,63 @@ sap.ui.define(
             }.bind(this),
           });
           this._getDirectReports();
-          this._getAdminReports();
+          // this._getAdminReports();
         } else {
           // var sUrl =
           //   "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.mylightningstorage.com/";
           sap.m.URLHelper.redirect(sUrl, false);
         }
       },
-      _getAdminReports: function(){
+      _getAdminReports: function () {
+        var isAdmin = this._oView.getModel("mainModel").getProperty("/ADMIN");
+        if (!isAdmin) {
+          return;
+        }
         this._oView
-        .getModel("mainModel")
-        .setProperty("/adminReportsBusy", true);
-      $.ajax({
-        type: "GET",
-        headers: {
-          Authorization: `Bearer ${window.sessionStorage.accessToken}`,
-        },
-        contentType: "application/json",
-        url: "/api/admin_report",
-        dataType: "json",
-        success: function (data) {
-          this._oView
-            .getModel("mainModel")
-            .setProperty("/adminreports", data.result);
-          this._oView
-            .getModel("mainModel")
-            .setProperty("/adminReportsBusy", false);
-          var skills = data.result.skils ? data.result.skils : "",
-            aSkills = skills.split(", "),
-            aSkillSet = [];
-          aSkills.forEach((element) => {
-            aSkillSet.push({ key: element, text: element });
-          });
-          this._oView
-            .getModel("mainModel")
-            .setProperty("/adminreports/skillset", aSkillSet);
-          this._oView
-            .getModel("mainModel")
-            .setProperty("/adminreports/askills", aSkills);
-        }.bind(this),
-        error: function (error) {
-          this._oView
-            .getModel("mainModel")
-            .setProperty("/adminReportsBusy", false);
-          console.log("Error fetching direct reports");
-          // var sUrl =
-          //   "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.mylightningstorage.com/";
-          if (error.status === 401) {
-            MessageToast.show("Error occured. Sign in again");
-            window.sessionStorage.accessToken = "";
-            sap.m.URLHelper.redirect(sUrl, false);
-          }
-        }.bind(this),
-      });
+          .getModel("mainModel")
+          .setProperty("/adminReportsBusy", true);
+        $.ajax({
+          type: "GET",
+          headers: {
+            Authorization: `Bearer ${window.sessionStorage.accessToken}`,
+          },
+          contentType: "application/json",
+          url: "/api/admin_report",
+          dataType: "json",
+          success: function (data) {
+            this._oView
+              .getModel("mainModel")
+              .setProperty("/adminreports", data.result);
+            this._oView
+              .getModel("mainModel")
+              .setProperty("/adminReportsBusy", false);
+            var skills = data.result.skils ? data.result.skils : "",
+              aSkills = skills.split(", "),
+              aSkillSet = [];
+            aSkills.forEach((element) => {
+              aSkillSet.push({ key: element, text: element });
+            });
+            this._oView
+              .getModel("mainModel")
+              .setProperty("/adminreports/skillset", aSkillSet);
+            this._oView
+              .getModel("mainModel")
+              .setProperty("/adminreports/askills", aSkills);
+          }.bind(this),
+          error: function (error) {
+            this._oView
+              .getModel("mainModel")
+              .setProperty("/adminReportsBusy", false);
+            console.log("Error fetching direct reports");
+            // var sUrl =
+            //   "https://mylightningstorage.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://www.mylightningstorage.com/";
+            if (error.status === 401) {
+              MessageToast.show("Error occured. Sign in again");
+              window.sessionStorage.accessToken = "";
+              sap.m.URLHelper.redirect(sUrl, false);
+            }
+          }.bind(this),
+        });
       },
       _getDirectReports: function () {
         this._oView
@@ -303,9 +308,11 @@ sap.ui.define(
         } else {
           this._fromDirectReports = false;
         }
-        if(this.getView().getModel("mainModel").getProperty("/employee/is_admin")){
+        if (
+          this.getView().getModel("mainModel").getProperty("/employee/is_admin")
+        ) {
           this.getView().getModel("newEmployee").setProperty("/ADMIN", true);
-        }else{
+        } else {
           this.getView().getModel("newEmployee").setProperty("/ADMIN", false);
         }
         var skills = oLineItem.skils ? oLineItem.skils : "",
@@ -331,9 +338,9 @@ sap.ui.define(
       handleDeletePhoto: function () {
         var oMainModel = this.getView().getModel("mainModel"),
           data = { photo_url: oMainModel.getProperty("/employee/photo_url") };
-        if(!data.photo_url){
+        if (!data.photo_url) {
           return;
-        }  
+        }
         oMainModel.setProperty("/photoBusy", true);
         $.ajax({
           type: "DELETE",
@@ -595,7 +602,7 @@ sap.ui.define(
       onHomeIconPress: function () {
         window.location.replace("");
       },
-      onPhotoChange: function(oEvent){
+      onPhotoChange: function (oEvent) {
         var oFileUploader = this._oView.byId("fileUploader");
         oFileUploader.setName("abc");
       },
@@ -613,9 +620,11 @@ sap.ui.define(
 
         function checkChild() {
           if (child.closed) {
-            var data = {linkedin_token: window.sessionStorage.linkedin_code_1};
-            if(!window.sessionStorage.linkedin_code_1){
-                return;
+            var data = {
+              linkedin_token: window.sessionStorage.linkedin_code_1,
+            };
+            if (!window.sessionStorage.linkedin_code_1) {
+              return;
             }
             oMainModel.setProperty("/photoBusy", true);
             $.ajax({
@@ -630,9 +639,9 @@ sap.ui.define(
               success: function (data) {
                 // oMainModel.setProperty("/employees", data.result);
                 var sPhotoUrl =
-                data.result.profilePicture["displayImage~"].elements[2]
-                  .identifiers[0].identifier;
-                  oMainModel.setProperty("/employee/photo_url", sPhotoUrl);  
+                  data.result.profilePicture["displayImage~"].elements[2]
+                    .identifiers[0].identifier;
+                oMainModel.setProperty("/employee/photo_url", sPhotoUrl);
                 MessageToast.show("Profile picture imported Successfully");
                 oMainModel.setProperty("/photoBusy", false);
               }.bind(this),

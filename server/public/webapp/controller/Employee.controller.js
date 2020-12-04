@@ -8,13 +8,21 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
   ],
-  function (Controller, JSONModel, MessageToast, Fragment, DateFormat, Filter, FilterOperator) {
+  function (
+    Controller,
+    JSONModel,
+    MessageToast,
+    Fragment,
+    DateFormat,
+    Filter,
+    FilterOperator
+  ) {
     "use strict";
     var _sIdentity = "cmpe272.ss";
     var sLogOutUrl =
-    "https://rightfinder.auth.ap-south-1.amazoncognito.com/logout?client_id=4khht0k2e1r2k5v3ei7hsp8smd&logout_uri=https://application.rightfinder.click";
-  var sUrl =
-    "https://rightfinder.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://application.rightfinder.click";
+      "https://rightfinder.auth.ap-south-1.amazoncognito.com/logout?client_id=4khht0k2e1r2k5v3ei7hsp8smd&logout_uri=https://application.rightfinder.click";
+    var sUrl =
+      "https://rightfinder.auth.ap-south-1.amazoncognito.com/login?client_id=4khht0k2e1r2k5v3ei7hsp8smd&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile&redirect_uri=https://application.rightfinder.click";
     return Controller.extend("aws.LightningStorage.controller.Employee", {
       onInit: function () {
         this._oView = this.getView();
@@ -35,13 +43,13 @@ sap.ui.define(
         } else {
           oModel.setProperty("/MGR", false);
         }
-        if(oModel.getProperty("/ADMIN")){
+        if (oModel.getProperty("/ADMIN")) {
           this._getManagers();
-        }else{
+        } else {
           oModel.setProperty("/ADMIN", false);
         }
       },
-      _getManagers: function(){
+      _getManagers: function () {
         var oModel = this._oView.getModel("newEmployee");
         $.ajax({
           type: "GET",
@@ -91,7 +99,7 @@ sap.ui.define(
         }
         oEvent.getSource().getBinding("suggestionItems").filter(aFilters);
       },
-  
+
       handleUploadPress: function (oEvent) {
         var oFileUploader = this._oView.byId("fileUploader2"),
           oFile = oFileUploader.oFileUpload.files[0],
