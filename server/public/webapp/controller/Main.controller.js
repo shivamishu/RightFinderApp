@@ -306,7 +306,7 @@ sap.ui.define(
         if(this.getView().getModel("mainModel").getProperty("/employee/is_admin")){
           this.getView().getModel("newEmployee").setProperty("/ADMIN", true);
         }else{
-          oModel.setProperty("/ADMIN", false);
+          this.getView().getModel("newEmployee").setProperty("/ADMIN", false);
         }
         var skills = oLineItem.skils ? oLineItem.skils : "",
           aSkills = skills.split(", "),
